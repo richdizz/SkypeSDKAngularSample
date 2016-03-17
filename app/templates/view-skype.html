@@ -4,21 +4,22 @@
     </div>
 </nav>
 <div class="row">
-    <div class="col-xs-3">
+    <div class="col-xs-4">
         <img ng-src="{{pic}}" class="img-circle img-responsive"/>
         <div class="list-group" style="padding-top: 10px;">
             <div class="list-group-item disabled">My Contacts</div>
             <div class="list-group-item" ng-show="!contacts">Loading...</div>
             <div class="list-group-item" ng-repeat="contact in contacts" ng-class="{'active': contact.active}" ng-click="setActive(contact)">
                 {{contact.name}}
+                <span class="badge" ng-class="contact.status"><span class="glyphicon glyphicon-minus"></span></span>
             </div>
         </div>
     </div>
-    <div class="col-xs-9">
+    <div class="col-xs-8">
         <div ng-show="activeContact">
             <div class="input-group">
-                <input type="text" class="form-control" id="im" ng-keyup="keyPressed()" ng-model="message">
-                <div class="input-group-addon" ng-click="sendMessage()"><span class="glyphicon glyphicon-comment"></span></div>
+                <input type="text" class="form-control" id="im" ng-keyup="keyPressed()" ng-model="message" ng-disabled="chatDisabled">
+                <div class="input-group-addon" ng-click="sendMessage()"><span class="glyphicon glyphicon-comment" ng-disabled="chatDisabled"></span></div>
             </div>
             <div>
                 <div class="alert" ng-class="{ 'alert-info': message.me, 'alert-warning': !message.me }" role="alert" 

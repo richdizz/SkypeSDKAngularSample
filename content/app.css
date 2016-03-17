@@ -3,3 +3,32 @@
     margin-bottom: 5px; 
     padding: 5px;  
 }
+
+.badge {
+    border: 1px solid #fff;
+}
+
+.Online {
+    background-color: green !important;
+    color: green !important;
+}
+
+.Busy {
+    background-color: red !important;
+    color: red !important;
+}
+
+.Idle, .IdleOnline, .Away, .BeRightBack {
+    background-color: gold !important;
+    color: gold;
+}
+
+.DoNotDisturb {
+    background-color: red !important;
+    color:  white !important;
+}
+
+.Offline, .Unknown, .Hidden {
+    background-color: grey !important;
+    color: grey !important;
+}

@@ -91,6 +91,7 @@ angular.module("skypeapp.services", [])
                         name: person.displayName(),
                         sip: person.id(),
                         person: person,
+                        status: "Offline",
                         conversation: []
                     });
                 });
@@ -184,12 +185,34 @@ angular.module("skypeapp.controllers", [])
         //load contacts
         skypeSvc.getContacts().then(function(contacts) {
             $scope.contacts = contacts;
+            angular.forEach($scope.contacts, function(e, i) {
+                e.person.status.get().then(function (s) {
+                    toggleStatus(e, s);
+                });
+                
+                e.person.status.changed(function (s) {
+                    toggleStatus(e, s);
+                });
+                
+                e.person.status.subscribe();
+            });
         }, function(err) {
             console.log("error: " + er);    
         });
     }, function(er) {
         console.log("error: " + er);
     });
+    
+    var toggleStatus = function(contact, status) {
+        contact.status = status;
+        if ($scope.activeContact) {
+            if (contact.sip == $scope.activeContact.sip)
+                $scope.chatDisabled = !canChat(contact);
+        }
+        
+        if (!$scope.$$phase)
+            $scope.$apply();
+    };
     
     //set a contact as active
     $scope.setActive = function(contact) {
@@ -198,6 +221,7 @@ angular.module("skypeapp.controllers", [])
         });
         contact.active = true;
         $scope.activeContact = contact;
+        $scope.chatDisabled = !canChat($scope.activeContact);
     };
     
     //handles key pressed events for sending messages
@@ -206,13 +230,22 @@ angular.module("skypeapp.controllers", [])
             $scope.sendMessage();
     };
     
+    var canChat = function(contact) {
+        var chattableStatus = { 
+            Online: true, Busy: true, Idle: true, IdleOnline: true, Away: true, BeRightBack: true,
+            DoNotDisturb: false, Offline: false, Unknown: false, Hidden: false };
+        return chattableStatus[contact.status];
+    };
+    
     //sends message to activeContact
     $scope.sendMessage = function() {
-        //sent the message and wait for response
-        skypeSvc.sendMessage($scope.activeContact.person, $scope.message).then(function() {
-            $scope.activeContact.conversation.unshift({ text: $scope.message, me: true, sender: "Me" });
-            $scope.message = "";
-        }); 
+        if (canChat($scope.activeContact)) {
+            //sent the message and wait for response
+            skypeSvc.sendMessage($scope.activeContact.person, $scope.message).then(function() {
+                $scope.activeContact.conversation.unshift({ text: $scope.message, me: true, sender: "Me" });
+                $scope.message = "";
+            }); 
+        }
     };
     
     //listen for messages broadcast from the skypeSvc
